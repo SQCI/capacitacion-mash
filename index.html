@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Evaluador Ergonómico para Oficina</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            body * { visibility: hidden; }
+            .print-content, .print-content * { visibility: visible; }
+            .print-content { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const iconos = {
+            Monitor: "🖥️",
+            Eye: "👁️",
+            Silla: "🪑",
+            Brazo: "💪",
+            Mouse: "🖱️",
+            Thermometer: "🌡️",
+            CheckCircle: "✅",
+            AlertTriangle: "⚠️",
+            XCircle: "❌"
+        };
+
+        const EvaluadorErgonomico = () => {
+            const [nombre, setNombre] = useState("");
+            const [departamento, setDepartamento] = useState("");
+            const [respuestas, setRespuestas] = useState({});
+            const [mostrarResultados, setMostrarResultados] = useState(false);
+
+            const preguntas = [
+                {
+                    id: 'monitor_altura',
+                    categoria: 'Monitor',
+                    icono: iconos.Monitor,
+                    pregunta: '¿La parte superior de tu monitor está a la altura de tus ojos o ligeramente por debajo?',
+                    opciones: [
+                        { valor: 'si', texto: 'Sí, está a la altura correcta', puntos: 2 },
+                        { valor: 'alto', texto: 'Está muy alto, tengo que levantar la cabeza', puntos: 0 },
+                        { valor: 'bajo', texto: 'Está muy bajo, tengo que inclinar la cabeza hacia abajo', puntos: 0 }
+                    ]
+                },
+                {
+                    id: 'monitor_distancia',
+                    categoria: 'Monitor',
+                    icono: iconos.Eye,
+                    pregunta: '¿A qué distancia está tu monitor de tus ojos?',
+                    opciones: [
+                        { valor: 'correcta', texto: '50-70 cm (largo de un brazo extendido)', puntos: 2 },
+                        { valor: 'cerca', texto: 'Menos de 50 cm (muy cerca)', puntos: 0 },
+                        { valor: 'lejos', texto: 'Más de 70 cm (tengo que forzar la vista)', puntos: 1 }
+                    ]
+                },
+                {
+                    id: 'silla_espalda',
+                    categoria: 'Silla',
+                    icono: iconos.Silla,
+                    pregunta: '¿Tu espalda está completamente apoyada en el respaldo de la silla?',
+                    opciones: [
+                        { valor: 'si', texto: 'Sí, tengo soporte completo en la zona lumbar', puntos: 2 },
+                        { valor: 'parcial', texto: 'Solo parcialmente apoyada', puntos: 1 },
+                        { valor: 'no', texto: 'No, me siento en el borde o sin apoyo', puntos: 0 }
+                    ]
+                },
+                {
+                    id: 'pies_suelo',
+                    categoria: 'Postura',
+                    icono: iconos.Silla,
+                    pregunta: '¿Tus pies están completamente apoyados en el suelo?',
+                    opciones: [
+                        { valor: 'si', texto: 'Sí, ambos pies tocan completamente el suelo', puntos: 2 },
+                        { valor: 'reposapiés', texto: 'Uso un reposapiés', puntos: 2 },
+                        { valor: 'no', texto: 'No, están colgando o en puntas', puntos: 0 }
+                    ]
+                },
+                {
+                    id: 'teclado_muñecas',
+                    categoria: 'Teclado/Mouse',
+                    icono: iconos.Mouse,
+                    pregunta: '¿Cómo están posicionadas tus muñecas al escribir?',
+                    opciones: [
+                        { valor: 'neutras', texto: 'Rectas y neutras, sin doblar hacia arriba o abajo', puntos: 2 },
+                        { valor: 'dobladas', texto: 'Dobladas hacia arriba o hacia abajo', puntos: 0 },
+                        { valor: 'apoyo', texto: 'Uso soporte para muñecas', puntos: 2 }
+                    ]
+                },
+                {
+                    id: 'codos_posicion',
+                    categoria: 'Brazos',
+                    icono: iconos.Brazo,
+                    pregunta: '¿Tus codos están apoyados cómodamente a los lados del cuerpo mientras escribes?',
+                    opciones: [
+                        { valor: 'si', texto: 'Sí, los tengo relajados y pegados al cuerpo', puntos: 2 },
+                        { valor: 'a_veces', texto: 'A veces los tengo alejados o tensos', puntos: 1 },
+                        { valor: 'no', texto: 'No, los mantengo levantados o alejados', puntos: 0 }
+                    ]
+                },
+                {
+                    id: 'iluminacion',
+                    categoria: 'Iluminación',
+                    icono: iconos.Eye,
+                    pregunta: '¿Hay reflejos o brillos molestos en tu pantalla?',
+                    opciones: [
+                        { valor: 'no', texto: 'No, la iluminación es adecuada', puntos: 2 },
+                        { valor: 'pocos', texto: 'Algunos reflejos ocasionales', puntos: 1 },
+                        { valor: 'si', texto: 'Sí, hay reflejos constantes que me molestan', puntos: 0 }
+                    ]
+                },
+                {
+                    id: 'ergonomia_ambiental',
+                    categoria: 'Ambiente',
+                    icono: iconos.Thermometer,
+                    pregunta: '¿Cómo percibes el ambiente térmico en tu área de trabajo?',
+                    opciones: [
+                        { valor: 'confortable', texto: 'Temperatura confortable, sin corrientes de aire molestas', puntos: 2 },
+                        { valor: 'frio', texto: 'Hace frío o hay corrientes de aire que me incomodan', puntos: 0 },
+                        { valor: 'calor', texto: 'Hace calor o el ambiente es muy cerrado', puntos: 0 }
+                    ]
+                },
+                {
+                    id: 'descansos',
+                    categoria: 'Hábitos',
+                    icono: iconos.CheckCircle,
+                    pregunta: '¿Tomas descansos regulares durante tu jornada?',
+                    opciones: [
+                        { valor: 'si', texto: 'Sí, cada 30-60 minutos me levanto y estiro', puntos: 2 },
+                        { valor: 'pocos', texto: 'Solo en el almuerzo', puntos: 1 },
+                        { valor: 'no', texto: 'Casi nunca, trabajo horas seguidas', puntos: 0 }
+                    ]
+                }
+            ];
+
+            const manejarRespuesta = (preguntaId, valor, puntos) => {
+                setRespuestas(prev => ({
+                    ...prev,
+                    [preguntaId]: { valor, puntos }
+                }));
+            };
+
+            const calcularPuntuacion = () => {
+                const total = Object.values(respuestas).reduce((sum, resp) => sum + resp.puntos, 0);
+                const maxPuntos = preguntas.length * 2;
+                return { total, maxPuntos, porcentaje: Math.round((total / maxPuntos) * 100) };
+            };
+
+            const obtenerNivelRiesgo = (porcentaje) => {
+                if (porcentaje >= 80) return { nivel: 'Bajo', color: 'text-green-700', bg: 'bg-green-100', icono: iconos.CheckCircle };
+                if (porcentaje >= 60) return { nivel: 'Moderado', color: 'text-yellow-600', bg: 'bg-yellow-100', icono: iconos.AlertTriangle };
+                return { nivel: 'Alto', color: 'text-red-600', bg: 'bg-red-100', icono: iconos.XCircle };
+            };
+
+            const obtenerRecomendaciones = () => {
+                const recomendaciones = [];
+
+                if (respuestas.monitor_altura?.puntos === 0) {
+                    recomendaciones.push("📺 Ajusta la altura de tu monitor: la parte superior debe estar a nivel de tus ojos");
+                }
+                if (respuestas.monitor_distancia?.puntos < 2) {
+                    recomendaciones.push("👁️ Coloca tu monitor a 50-70 cm de distancia (largo de un brazo)");
+                }
+                if (respuestas.silla_espalda?.puntos < 2) {
+                    recomendaciones.push("🪑 Ajusta tu silla para tener soporte lumbar completo");
+                }
+                if (respuestas.pies_suelo?.puntos === 0) {
+                    recomendaciones.push("👣 Usa un reposapiés si tus pies no tocan el suelo completamente");
+                }
+                if (respuestas.teclado_muñecas?.puntos === 0) {
+                    recomendaciones.push("⌨️ Mantén las muñecas en posición neutra, considera usar soporte");
+                }
+                if (respuestas.codos_posicion?.puntos === 0) {
+                    recomendaciones.push("💪 Mantén los codos apoyados y relajados a los lados del cuerpo");
+                }
+                if (respuestas.iluminacion?.puntos < 2) {
+                    recomendaciones.push("💡 Mejora la iluminación para evitar reflejos en la pantalla");
+                }
+                if (respuestas.ergonomia_ambiental?.puntos === 0) {
+                    recomendaciones.push("🌡️ Reporta problemas de temperatura o corrientes de aire a mantenimiento");
+                }
+                if (respuestas.descansos?.puntos < 2) {
+                    recomendaciones.push("⏰ Toma descansos cada 30-60 minutos para estirar y relajar músculos");
+                }
+
+                return recomendaciones;
+            };
+
+            const imprimirResultados = () => {
+                window.print();
+            };
+
+            return (
+                <div className="max-w-3xl mx-auto p-4 font-sans text-blue-800">
+                    <h1 className="text-2xl font-bold mb-4 text-center text-green-700">Evaluador Ergonómico para Oficina</h1>
+
+                    {!mostrarResultados && (
+                        <form onSubmit={e => {
+                            e.preventDefault();
+                            if (!nombre.trim() || !departamento.trim()) {
+                                alert("Por favor, ingresa tu nombre y departamento.");
+                                return;
+                            }
+                            setMostrarResultados(true);
+                        }}>
+                            <div className="mb-6">
+                                <label className="block mb-1 font-semibold" htmlFor="nombre">Nombre:</label>
+                                <input
+                                    type="text"
+                                    id="nombre"
+                                    value={nombre}
+                                    onChange={e => setNombre(e.target.value)}
+                                    required
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-600"
+                                    placeholder="Tu nombre completo"
+                                />
+                            </div>
+                            <div className="mb-6">
+                                <label className="block mb-1 font-semibold" htmlFor="departamento">Departamento:</label>
+                                <input
+                                    type="text"
+                                    id="departamento"
+                                    value={departamento}
+                                    onChange={e => setDepartamento(e.target.value)}
+                                    required
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-600"
+                                    placeholder="Tu área o departamento"
+                                />
+                            </div>
+
+                            {preguntas.map(({ id, categoria, icono, pregunta, opciones }) => (
+                                <div key={id} className="mb-6 border-b pb-4">
+                                    <h2 className="text-lg font-semibold mb-2 flex items-center gap-2 text-green-700">
+                                        <span>{icono}</span> {categoria}
+                                    </h2>
+                                    <p className="mb-2">{pregunta}</p>
+                                    <div className="flex flex-col gap-1">
+                                        {opciones.map(({ valor, texto, puntos }) => (
+                                            <label key={valor} className="inline-flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name={id}
+                                                    value={valor}
+                                                    onChange={() => manejarRespuesta(id, valor, puntos)}
+                                                    required
+                                                    className="cursor-pointer"
+                                                />
+                                                {texto}
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+
+                            <button
+                                type="submit"
+                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                            >
+                                Ver resultados
+                            </button>
+                        </form>
+                    )}
+
+                    {mostrarResultados && (
+                        <div className="print-content p-4 border rounded shadow bg-white text-blue-800">
+                            <h2 className="text-xl font-bold mb-2 text-green-700">Resultados</h2>
+                            <p><strong>Nombre:</strong> {nombre}</p>
+                            <p><strong>Departamento:</strong> {departamento}</p>
+                            {(() => {
+                                const { total, maxPuntos, porcentaje } = calcularPuntuacion();
+                                const riesgo = obtenerNivelRiesgo(porcentaje);
+                                const recomendaciones = obtenerRecomendaciones();
+
+                                return (
+                                    <>
+                                        <p>
+                                            Puntuación: {total} / {maxPuntos} ({porcentaje}%)
+                                        </p>
+                                        <p className={`${riesgo.color} font-semibold flex items-center gap-2`}>
+                                            Nivel de riesgo: {riesgo.icono} {riesgo.nivel}
+                                        </p>
+                                        <h3 className="mt-4 font-semibold">Recomendaciones:</h3>
+                                        <ul className="list-disc list-inside">
+                                            {recomendaciones.length > 0 ? (
+                                                recomendaciones.map((rec, i) => <li key={i}>{rec}</li>)
+                                            ) : (
+                                                <li>¡Muy bien! No se requieren recomendaciones.</li>
+                                            )}
+                                        </ul>
+                                        <div className="mt-4">
+                                            <button
+                                                onClick={imprimirResultados}
+                                                className="bg-green-700 text-white px-3 py-1 rounded hover:bg-green-800"
+                                                title="Imprimir o guardar resultados en PDF"
+                                            >
+                                                Imprimir resultados
+                                            </button>
+                                        </div>
+                                    </>
+                                );
+                            })()}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<EvaluadorErgonomico />);
+    </script>
+</body>
+</html>
