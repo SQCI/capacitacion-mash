@@ -37,7 +37,7 @@
         
         .correct-answer {
             background: linear-gradient(135deg, #10b981, #065f46) !important;
-            color: #000000 !important;
+            color: white !important;
             font-weight: bold !important;
             transform: translateX(0px) !important;
         }
@@ -72,6 +72,15 @@
             box-shadow: 0 10px 25px rgba(62, 146, 204, 0.4);
         }
         
+        /* Estilo para módulo completado y bloqueado */
+        .module-button.completed {
+            background: #d1fae5; /* Color claro para indicar completado */
+            color: #065f46;
+            border-color: #10b981;
+            opacity: 1 !important;
+            cursor: default !important;
+        }
+
         .rh-card {
             background: linear-gradient(135deg, #f0f9ff, #dbeafe);
             border-left: 6px solid #0284c7;
@@ -134,6 +143,10 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .hidden {
+            display: none;
         }
     </style>
 </head>
@@ -199,7 +212,7 @@
                 <input 
                     type="text" 
                     id="input-supervisor" 
-                    placeholder="Supervisor inmediato" 
+                    placeholder="Responsable inmediato" 
                     class="p-4 rounded-lg bg-white/10 backdrop-blur border border-white/20 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
                 >
             </div>
@@ -396,10 +409,10 @@
                         explanation: '¡Correcto! La **LAN** regula el uso, explotación y aprovechamiento de las aguas nacionales, incluyendo los permisos y concesiones de CONAGUA.'
                     },
                     {
-                        q: 'El uso de la **Matriz de Requisitos Legales** de la empresa le permite al supervisor MASH:',
+                        q: 'El uso de la **SQCI-JUD-MA-002 Matriz ERLO** de la empresa le permite al supervisor MASH:',
                         options: ['Calcular el volumen de residuos peligrosos generados anualmente.', 'Conocer las obligaciones de la LGEEPA y la LGPGIR que aplican a su proceso.', 'Diseñar el organigrama del área MASH.'],
                         answer: 1,
-                        explanation: '¡Correcto! La Matriz Legal es la herramienta interna que **traduce la ley** en **obligaciones específicas** de cumplimiento para cada proceso de la empresa.'
+                        explanation: '¡Correcto! La SQCI-JUD-MA-002 Matriz ERLO es la herramienta interna que **traduce la ley** en **obligaciones específicas** de cumplimiento para cada proceso de la empresa.'
                     },
                     {
                         q: 'Si un supervisor MASH detecta un contenedor de residuos abierto en el ATRP, el documento interno que debe utilizar para registrar esta observación es:',
@@ -438,10 +451,10 @@
                         explanation: '¡Correcto! El pretil o **muro de contención** (o dique) es el dispositivo de seguridad para retener cualquier derrame y facilitar la limpieza, protegiendo el suelo y el agua.'
                     },
                     {
-                        q: '¿Cuál es una **prohibición estricta** en el manejo de residuos peligrosos?',
-                        options: ['Generar más de 100 kg de RP al año.', 'Almacenar el RP en la fuente generadora por más de seis meses.', 'Utilizar la bitácora de registro interna para controlar la generación.'],
+                        q: '¿Cuál es el significado completo del acrónimo CRETIB, utilizado para clasificar las características de peligrosidad de los residuos?',
+                        options: ['Características, Riesgo, Explosión, Toxicidad, Incompatible y Biodiverso.', 'Corrosivo, Reactivo, Explosivo, Tóxico, Inflamable y Biológico.', 'Central de Residuos Ecológicos, Tratamiento, Incineración y Biodegradación.'],
                         answer: 1,
-                        explanation: '¡Correcto! El generador no puede almacenar RP en su área por más de **seis meses**. Si la autoridad lo detecta, podría considerarse un pasivo ambiental.'
+                        explanation: '¡Correcto! CRETIB significa **Corrosivo, Reactivo, Explosivo, Tóxico, Inflamable y Biológico**. Es la clasificación oficial mexicana para determinar la peligrosidad de residuos según la NOM-052.'
                     },
                     {
                         q: '¿Cuál de los siguientes no es un requisito obligatorio del **Manifiesto de RP** para la disposición final?',
@@ -474,16 +487,16 @@
                         explanation: '¡Correcto! El Límite Permisible es un valor normativo de concentración de contaminantes (ej. SST, DQO, Grasas y Aceites) que **no debe rebasarse** para proteger los cuerpos de agua.'
                     },
                     {
-                        q: '¿Qué requisito establece la NOM-001 para la toma de muestras compuestas?',
-                        options: ['Que la muestra sea tomada por el Supervisor MASH a mano alzada.', 'Que la obra de conducción tenga una **estructura** que permita tomar muestras sin interrumpir la descarga.', 'Que la muestra se tome únicamente al final del turno.'],
+                        q: 'Según el título de concesión del agua, ¿cuál es la fuente de abastecimiento de SQCI en materia de agua?',
+                        options: ['Rio tonala.', 'Río Huazuntlán.', 'Arroyo Acotope.'],
                         answer: 1,
-                        explanation: '¡Correcto! El sitio de muestreo debe ser diseñado para permitir la toma de muestras de forma segura y **representativa** (muestra compuesta) sin detener la operación de descarga.'
+                        explanation: '¡Correcto! El **Río Huazuntlán** es la fuente de abastecimiento de agua autorizada para SQCI según consta en el título de concesión otorgado por CONAGUA.'
                     },
                     {
-                        q: 'Si la empresa utiliza agua de suministro que ya contiene contaminantes (ej. alta concentración de cloruros), ¿qué procedimiento permite la NOM-001?',
-                        options: ['Restar la concentración de contaminantes de origen al resultado final.', 'Duplicar el Límite Permisible (LMP) de la descarga.', 'Pagar una multa a CONAGUA para evitar el monitoreo.'],
+                        q: 'Según el proceso de la IAEIA para que un "Aspecto Ambiental" sea catalogado como "Significativo" y deba ser priorizado, se utiliza la multiplicación de Probabilidad por Consecuencia. Sin embargo, ¿qué factor garantiza que un aspecto sea considerado significativo automáticamente, independientemente de esa puntuación?',
+                        options: ['Si está regulado por un Requisito Legal vigente.', 'Si se refiere a la gestión de residuos sólidos urbanos.', 'Si se produce durante condiciones anormales de operación.'],
                         answer: 0,
-                        explanation: '¡Correcto! Se permite **restar la concentración de origen** (acreditada con análisis) al resultado de la descarga, excepto para parámetros como temperatura o pH, para ser justos en la evaluación.'
+                        explanation: '¡Correcto! Cualquier aspecto ambiental que esté **regulado por un requisito legal vigente** se considera automáticamente significativo, independientemente de la evaluación probabilidad x consecuencia.'
                     },
                     {
                         q: 'Los informes de resultados de muestreo y análisis de la calidad del agua deben registrarse ante:',
@@ -522,10 +535,10 @@
                         explanation: '¡Correcto! La **COA** es el mecanismo único para reportar anualmente a SEMARNAT los datos consolidados de emisiones, residuos y consumo de agua/energía.'
                     },
                     {
-                        q: 'En el caso de Fuentes Múltiples (varias chimeneas), ¿cómo se evalúa la emisión total de contaminantes?',
-                        options: ['Se reporta solo la emisión de la chimenea más grande.', 'Se evalúa la emisión de cada chimenea de forma individual y se elige la más baja.', 'Se deben sumar las emisiones individuales de todas las chimeneas de la planta.'],
-                        answer: 2,
-                        explanation: '¡Correcto! Para evaluar el cumplimiento y el impacto total, se deben **sumar** todas las emisiones individuales para obtener la emisión total de la Fuente Fija.'
+                        q: 'En los sistemas de gestión ambiental, se diferencian claramente dos conceptos: el Aspecto Ambiental y el Impacto Ambiental. ¿Cuál es la relación de causa y efecto correcta entre estos términos?',
+                        options: ['El Impacto Ambiental es la causa (la interacción de la actividad) y el Aspecto Ambiental es el efecto (la alteración en el medio).', 'El Aspecto Ambiental es la causa o elemento de la actividad de la organización que puede interactuar con el medio, generando un Impacto Ambiental (el cambio o la consecuencia).', 'Ambos términos se refieren a la consecuencia negativa de las operaciones sobre el medio ambiente, por lo que son sinónimos.'],
+                        answer: 1,
+                        explanation: '¡Correcto! El **Aspecto Ambiental** es la causa (elemento de la actividad que interactúa con el medio) y el **Impacto Ambiental** es el efecto o consecuencia (el cambio que se produce en el medio ambiente).'
                     }
                 ]
             },
@@ -552,10 +565,10 @@
                         explanation: '¡Correcto! La autoridad requiere información técnica precisa como **coordenadas UTM** y la **propuesta de la técnica** (biorremediación, confinamiento, etc.) para su aprobación.'
                     },
                     {
-                        q: '¿Quién debe realizar el **muestreo final** del suelo remediado para comprobar que se alcanzaron los niveles de limpieza exigidos?',
-                        options: ['El propio Supervisor MASH de la planta.', 'La empresa de remediación que ejecutó los trabajos.', 'Laboratorios acreditados y aprobados por la autoridad ambiental.'],
-                        answer: 2,
-                        explanation: '¡Correcto! La verificación final debe ser realizada por **laboratorios acreditados y aprobados** por SEMARNAT para garantizar la validez e imparcialidad de los resultados.'
+                        q: 'Dentro de las estrategias para la minimización de residuos peligrosos, ¿qué acción se recomienda específicamente para los envases que contuvieron sustancias peligrosas en SQCI?',
+                        options: ['Disponer de inmediato todos los envases de productos químicos, ya que no pueden volver a usarse.', 'Reutilizar los envases que estén en buenas condiciones para contener el mismo tipo de material o uno compatible.', 'Quemar los envases vacíos para reducir su volumen antes de enviarlos a disposición final.'],
+                        answer: 1,
+                        explanation: '¡Correcto! La **reutilización de envases** en buenas condiciones para el mismo material o uno compatible es una estrategia clave de minimización, siempre que se mantenga la integridad del envase y la compatibilidad química.'
                     },
                     {
                         q: 'El objetivo principal del Plan de Contingencias ante Derrames (SQCI-MASH-PN-016) es:',
@@ -576,7 +589,8 @@
         let totalQuestions = 0;
         let totalModules = quizData.length;
         let completedModules = 0;
-        let moduleResults = [];
+        // moduleResults contendrá un ÚNICO registro por módulo completado para evitar doble conteo.
+        let moduleResults = []; 
         let startTime = new Date();
         let trainingData = {};
         
@@ -625,15 +639,22 @@
 
         function updateGlobalProgress() {
             const totalPossibleQuestions = quizData.reduce((sum, module) => sum + module.questions.length, 0);
-            let answeredQuestions = 0;
             
+            // Contar solo las preguntas contestadas una vez
+            let answeredQuestionsCount = 0;
             moduleResults.forEach(result => {
-                answeredQuestions += result.total;
+                answeredQuestionsCount += result.total;
             });
-            
-            answeredQuestions += currentQuestionIndex;
-            
-            const progressPercent = Math.round((answeredQuestions / totalPossibleQuestions) * 100);
+
+            // Si el módulo actual no se ha completado, sumamos el progreso actual
+            if (!moduleResults.some(r => r.id === currentModuleId)) {
+                 answeredQuestionsCount += currentQuestionIndex;
+            } else if (currentModuleId <= totalModules && completedModules < totalModules) {
+                 // Si ya se completó, no sumamos preguntas en el módulo actual si ya está en moduleResults
+                 // y estamos esperando el siguiente.
+            }
+
+            const progressPercent = Math.round((answeredQuestionsCount / totalPossibleQuestions) * 100);
             
             document.getElementById('progress-fill').style.width = progressPercent + '%';
             document.getElementById('progress-text').textContent = `Progreso: ${progressPercent}%`;
@@ -673,14 +694,30 @@
             
             quizData.forEach((module, index) => {
                 const button = document.createElement('button');
-                button.innerHTML = `Módulo ${module.id}`;
+                const moduleId = module.id;
+                button.innerHTML = `Módulo ${moduleId}`;
                 button.className = 'module-button py-3 px-6 rounded-lg font-bold text-sm border-2 border-blue-300 text-blue-200 hover:text-white';
-                button.onclick = () => selectModule(module.id);
-                button.dataset.moduleId = module.id;
+                button.onclick = () => selectModule(moduleId);
+                button.dataset.moduleId = moduleId;
                 
+                const isCompleted = moduleResults.some(result => result.id === moduleId);
+
                 if (index > 0) {
+                    // Un módulo está disponible si el módulo anterior (id-1) está en moduleResults.
+                    const previousModuleId = quizData[index - 1].id;
+                    const isPreviousCompleted = moduleResults.some(result => result.id === previousModuleId);
+                    
+                    if (!isPreviousCompleted && !isCompleted) {
+                        button.disabled = true;
+                        button.classList.add('opacity-50', 'cursor-not-allowed');
+                    }
+                }
+                
+                // Bloquear y marcar como completado si ya se contestó
+                if (isCompleted) {
                     button.disabled = true;
-                    button.classList.add('opacity-50', 'cursor-not-allowed');
+                    button.classList.add('completed');
+                    button.classList.remove('opacity-50', 'cursor-not-allowed');
                 }
                 
                 container.appendChild(button);
@@ -688,6 +725,15 @@
         }
 
         function selectModule(moduleId) {
+            // REGLA 1: Bloquear módulo si ya está completado
+            const isCompleted = moduleResults.some(result => result.id === moduleId);
+            if (isCompleted) {
+                // No usar alert(), pero en este entorno se permite temporalmente
+                // En una app real se usaría un modal o mensaje en pantalla.
+                alert("Este módulo ya fue completado. No se puede volver a contestar.");
+                return;
+            }
+
             currentModuleId = moduleId;
             const buttons = document.querySelectorAll('.module-button');
             buttons.forEach(btn => {
@@ -767,7 +813,7 @@
             const isCorrect = selectedIndex === correctAnswerIndex;
             if (isCorrect) {
                 moduleScore++;
-                totalScore++;
+                // No actualizar totalScore aquí para evitar doble conteo en caso de bug.
                 feedbackTitle.textContent = 'Respuesta Correcta';
                 feedbackTitle.className = 'font-bold text-sm mb-2 text-green-800';
                 feedbackArea.className = 'p-4 rounded-xl border bg-green-50 border-green-200';
@@ -794,15 +840,18 @@
             const totalQuestionsModule = module.questions.length;
             const percentage = Math.round((moduleScore / totalQuestionsModule) * 100);
             
-            moduleResults.push({
-                id: currentModuleId,
-                title: module.title,
-                score: moduleScore,
-                total: totalQuestionsModule,
-                percentage: percentage
-            });
+            // REGLA 2: Solo agregar si el módulo no ha sido registrado
+            if (!moduleResults.some(result => result.id === currentModuleId)) {
+                moduleResults.push({
+                    id: currentModuleId,
+                    title: module.title,
+                    score: moduleScore,
+                    total: totalQuestionsModule,
+                    percentage: percentage
+                });
+                completedModules++;
+            }
             
-            completedModules++;
             quizContent.classList.add('hidden');
             moduleSummaryScreen.classList.remove('hidden');
 
@@ -820,19 +869,24 @@
                 moduleScoreDisplay.className = 'text-3xl font-black mb-4 text-red-600';
             }
             
-            if (currentModuleId === totalModules) {
+            // Usar completedModules para verificar si terminamos
+            if (completedModules === totalModules) {
                 document.getElementById('continue-button').textContent = 'Ver Resultados Finales';
             } else {
                 document.getElementById('continue-button').textContent = 'Continuar al Siguiente Módulo';
-                enableNextModule();
             }
+
+            // Actualizar botones para mostrar el estado completado
+            createModuleButtons();
         }
 
+        // Se puede mantener esta función, pero el control principal está en createModuleButtons
         function enableNextModule() {
-            if (currentModuleId < totalModules) {
+            const nextModuleId = currentModuleId + 1;
+            if (nextModuleId <= totalModules) {
                 const buttons = document.querySelectorAll('.module-button');
                 buttons.forEach(btn => {
-                    if (parseInt(btn.dataset.moduleId) === currentModuleId + 1) {
+                    if (parseInt(btn.dataset.moduleId) === nextModuleId) {
                         btn.disabled = false;
                         btn.classList.remove('opacity-50', 'cursor-not-allowed');
                     }
@@ -841,13 +895,21 @@
         }
 
         function goToNextModule() {
-            if (currentModuleId === totalModules) {
+            if (completedModules === totalModules) {
                 showFinalResults();
                 return;
             }
 
-            currentModuleId++;
-            selectModule(currentModuleId);
+            // Busca el primer módulo que aún no se haya completado
+            const nextModule = quizData.find(m => !moduleResults.some(r => r.id === m.id));
+
+            if (nextModule) {
+                currentModuleId = nextModule.id;
+                selectModule(currentModuleId);
+            } else {
+                // Esto debería ser un fallback si completedModules era incorrecto
+                showFinalResults();
+            }
         }
         
         function showFinalResults() {
@@ -857,15 +919,24 @@
 
             const endTime = new Date();
             const timeSpent = Math.round((endTime - startTime) / 60000);
-            const percentage = Math.round((totalScore / totalQuestions) * 100);
+            
+            // REGLA 3: Recalcular la puntuación final usando SOLO moduleResults para evitar el exceso de 100%
+            const calculatedTotalScore = moduleResults.reduce((sum, result) => sum + result.score, 0);
+            const calculatedTotalQuestions = moduleResults.reduce((sum, result) => sum + result.total, 0);
+            
+            const percentage = calculatedTotalQuestions > 0 ? Math.round((calculatedTotalScore / calculatedTotalQuestions) * 100) : 0;
+            
+            // Actualizar el totalScore global con el valor calculado
+            totalScore = calculatedTotalScore;
 
             // Update RH Dashboard
             document.getElementById('rh-dashboard').classList.remove('hidden');
-            document.getElementById('completion-rate').textContent = '100%';
+            document.getElementById('completion-rate').textContent = `${completedModules / totalModules * 100}%`;
             document.getElementById('competency-level').textContent = percentage >= 80 ? 'ALTO' : percentage >= 60 ? 'MEDIO' : 'BAJO';
             document.getElementById('time-invested').textContent = timeSpent + ' min';
 
-            finalScoreDisplay.textContent = `${totalScore} / ${totalQuestions} (${percentage}%)`;
+            // Mostrar el puntaje total correcto sobre el total de preguntas (solo una vez)
+            finalScoreDisplay.textContent = `${totalScore} / ${calculatedTotalQuestions} (${percentage}%)`;
 
             if (percentage >= 80) {
                 finalSummaryMessage.textContent = `Resultado sobresaliente. Has demostrado competencia completa en los fundamentos MASH y estás listo para desempeñar funciones supervisoras.`;
@@ -903,7 +974,8 @@
                 resultsHTML += `
                     <div class="p-4 rounded-lg ${colorClass} flex justify-between items-center">
                         <span class="font-medium text-gray-800">${result.title}</span>
-                        <span class="font-bold text-lg">${result.score} / ${result.total} (${result.percentage}%)</span>
+                        <!-- CAMBIO SOLICITADO: Asegurar que el color del texto de la puntuación sea negro (text-gray-800) -->
+                        <span class="font-bold text-lg text-gray-800">${result.score} / ${result.total} (${result.percentage}%)</span>
                     </div>
                 `;
             });
@@ -931,7 +1003,11 @@
         function shareResults() {
             const date = new Date().toLocaleDateString('es-MX');
             const time = new Date().toLocaleTimeString('es-MX');
-            const percentage = Math.round((totalScore / totalQuestions) * 100);
+            
+            const calculatedTotalScore = moduleResults.reduce((sum, result) => sum + result.score, 0);
+            const calculatedTotalQuestions = moduleResults.reduce((sum, result) => sum + result.total, 0);
+            const percentage = calculatedTotalQuestions > 0 ? Math.round((calculatedTotalScore / calculatedTotalQuestions) * 100) : 0;
+            
             const timeSpent = Math.round((new Date() - startTime) / 60000);
             
             let moduleSummaryText = '';
@@ -964,10 +1040,10 @@ Email: ${supervisorData.email || 'No especificado'}
 MÉTRICAS DE ENTRENAMIENTO:
 Fecha: ${date} ${time}
 Duración: ${timeSpent} minutos
-Tasa de Completitud: 100%
+Tasa de Completitud: ${completedModules / totalModules * 100}%
 
 CALIFICACIÓN FINAL:
-Aciertos: ${totalScore} / ${totalQuestions}
+Aciertos: ${calculatedTotalScore} / ${calculatedTotalQuestions}
 Porcentaje: ${percentage}%
 Nivel de Competencia: ${competencyLevel}
 Status: ${status}
@@ -1009,7 +1085,10 @@ Reporte generado automáticamente - Sistema MASH v2.0
         }
 
         function generateCertificate() {
-            const percentage = Math.round((totalScore / totalQuestions) * 100);
+            const calculatedTotalScore = moduleResults.reduce((sum, result) => sum + result.score, 0);
+            const calculatedTotalQuestions = moduleResults.reduce((sum, result) => sum + result.total, 0);
+            const percentage = calculatedTotalQuestions > 0 ? Math.round((calculatedTotalScore / calculatedTotalQuestions) * 100) : 0;
+            
             if (percentage < 60) {
                 alert('Se requiere una calificación mínima de 60% para generar el certificado.');
                 return;
@@ -1135,7 +1214,10 @@ Reporte generado automáticamente - Sistema MASH v2.0
         }
 
         function sendToRH() {
-            const percentage = Math.round((totalScore / totalQuestions) * 100);
+            const calculatedTotalScore = moduleResults.reduce((sum, result) => sum + result.score, 0);
+            const calculatedTotalQuestions = moduleResults.reduce((sum, result) => sum + result.total, 0);
+            const percentage = calculatedTotalQuestions > 0 ? Math.round((calculatedTotalScore / calculatedTotalQuestions) * 100) : 0;
+            
             const subject = `Entrenamiento MASH - ${supervisorData.nombre}`;
             const body = `El empleado ${supervisorData.nombre} completó el entrenamiento MASH.
 
@@ -1149,7 +1231,10 @@ Ver reporte completo adjunto.`;
         }
 
         function sendToGmail() {
-            const percentage = Math.round((totalScore / totalQuestions) * 100);
+            const calculatedTotalScore = moduleResults.reduce((sum, result) => sum + result.score, 0);
+            const calculatedTotalQuestions = moduleResults.reduce((sum, result) => sum + result.total, 0);
+            const percentage = calculatedTotalQuestions > 0 ? Math.round((calculatedTotalScore / calculatedTotalQuestions) * 100) : 0;
+            
             const subject = `Entrenamiento MASH Completado - ${supervisorData.nombre}`;
             const body = `Estimado equipo de RH,
 
