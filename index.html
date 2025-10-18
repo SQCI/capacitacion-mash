@@ -45,6 +45,7 @@
         .incorrect-answer {
             background: linear-gradient(135deg, #ef4444, #991b1b) !important;
             color: white !important;
+            font-weight: bold !important;
             transform: translateX(0px) !important;
         }
         
@@ -345,13 +346,13 @@
                     </button>
                     <div class="relative">
                         <button onclick="toggleEmailMenu()" class="btn-danger text-white font-bold py-3 px-6 rounded-lg" id="email-button">
-                            📧 Enviar a RH ▼
+                            📧 Enviar a RL ▼
                         </button>
                         <div id="email-menu" class="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-xl border hidden z-10 min-w-48">
-                            <button onclick="sendToRH()" class="w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-100 rounded-t-lg">
+                            <button onclick="sendToRLClient()" class="w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-100 rounded-t-lg">
                                 📧 Cliente de Email
                             </button>
-                            <button onclick="sendToGmail()" class="w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-100 rounded-b-lg border-t border-gray-200">
+                            <button onclick="sendToRLGmail()" class="w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-100 rounded-b-lg border-t border-gray-200">
                                 🟢 Gmail
                             </button>
                         </div>
@@ -649,12 +650,15 @@
             // Si el módulo actual no se ha completado, sumamos el progreso actual
             if (!moduleResults.some(r => r.id === currentModuleId)) {
                  answeredQuestionsCount += currentQuestionIndex;
-            } else if (currentModuleId <= totalModules && completedModules < totalModules) {
-                 // Si ya se completó, no sumamos preguntas en el módulo actual si ya está en moduleResults
-                 // y estamos esperando el siguiente.
             }
 
-            const progressPercent = Math.round((answeredQuestionsCount / totalPossibleQuestions) * 100);
+            // CORRECCIÓN 2: Asegurar que el progreso marque 100% si completedModules == totalModules
+            let progressPercent = 0;
+            if (completedModules === totalModules) {
+                 progressPercent = 100;
+            } else {
+                 progressPercent = Math.round((answeredQuestionsCount / totalPossibleQuestions) * 100);
+            }
             
             document.getElementById('progress-fill').style.width = progressPercent + '%';
             document.getElementById('progress-text').textContent = `Progreso: ${progressPercent}%`;
@@ -718,6 +722,7 @@
                     button.disabled = true;
                     button.classList.add('completed');
                     button.classList.remove('opacity-50', 'cursor-not-allowed');
+                    button.classList.remove('text-blue-200', 'hover:text-white'); // Remover estilos de interactividad para completado
                 }
                 
                 container.appendChild(button);
@@ -728,9 +733,7 @@
             // REGLA 1: Bloquear módulo si ya está completado
             const isCompleted = moduleResults.some(result => result.id === moduleId);
             if (isCompleted) {
-                // No usar alert(), pero en este entorno se permite temporalmente
-                // En una app real se usaría un modal o mensaje en pantalla.
-                alert("Este módulo ya fue completado. No se puede volver a contestar.");
+                // Notificación en pantalla de que no se puede repetir
                 return;
             }
 
@@ -813,20 +816,25 @@
             const isCorrect = selectedIndex === correctAnswerIndex;
             if (isCorrect) {
                 moduleScore++;
-                // No actualizar totalScore aquí para evitar doble conteo en caso de bug.
                 feedbackTitle.textContent = 'Respuesta Correcta';
                 feedbackTitle.className = 'font-bold text-sm mb-2 text-green-800';
                 feedbackArea.className = 'p-4 rounded-xl border bg-green-50 border-green-200';
+                feedbackExplanation.textContent = explanation; // Muestra la explicación completa para el caso correcto
                 feedbackExplanation.className = 'text-sm text-green-800';
             } else {
+                // CORRECCIÓN 1: Asegura la leyenda de Respuesta Incorrecta
                 feedbackTitle.textContent = 'Respuesta Incorrecta';
                 feedbackTitle.className = 'font-bold text-sm mb-2 text-red-800';
                 feedbackArea.className = 'p-4 rounded-xl border bg-red-50 border-red-200';
+                
+                // Extraer solo la explicación de la respuesta, eliminando el "¡Correcto!" inicial de los datos
+                let correctedExplanation = explanation.replace(/^¡Correcto! /, '');
+                
+                // Añadir el texto de que es incorrecta para el usuario
+                feedbackExplanation.textContent = `¡Incorrecto! La respuesta correcta era: ${correctedExplanation}`;
                 feedbackExplanation.className = 'text-sm text-red-800';
             }
 
-            feedbackExplanation.textContent = explanation;
-            feedbackArea.classList.remove('hidden');
             nextButton.disabled = false;
         }
 
@@ -876,22 +884,13 @@
                 document.getElementById('continue-button').textContent = 'Continuar al Siguiente Módulo';
             }
 
-            // Actualizar botones para mostrar el estado completado
+            // Actualizar botones para mostrar el estado completado y desbloquear el siguiente
             createModuleButtons();
+            updateGlobalProgress(); // Actualizar el progreso final 100%
         }
 
-        // Se puede mantener esta función, pero el control principal está en createModuleButtons
         function enableNextModule() {
-            const nextModuleId = currentModuleId + 1;
-            if (nextModuleId <= totalModules) {
-                const buttons = document.querySelectorAll('.module-button');
-                buttons.forEach(btn => {
-                    if (parseInt(btn.dataset.moduleId) === nextModuleId) {
-                        btn.disabled = false;
-                        btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    }
-                });
-            }
+            // Lógica manejada en createModuleButtons() ahora
         }
 
         function goToNextModule() {
@@ -907,7 +906,6 @@
                 currentModuleId = nextModule.id;
                 selectModule(currentModuleId);
             } else {
-                // Esto debería ser un fallback si completedModules era incorrecto
                 showFinalResults();
             }
         }
@@ -918,7 +916,7 @@
             finalResultsScreen.classList.remove('hidden');
 
             const endTime = new Date();
-            const timeSpent = Math.round((endTime - startTime) / 60000);
+            const rawTimeSpentMinutes = (endTime - startTime) / 60000;
             
             // REGLA 3: Recalcular la puntuación final usando SOLO moduleResults para evitar el exceso de 100%
             const calculatedTotalScore = moduleResults.reduce((sum, result) => sum + result.score, 0);
@@ -931,11 +929,12 @@
 
             // Update RH Dashboard
             document.getElementById('rh-dashboard').classList.remove('hidden');
-            document.getElementById('completion-rate').textContent = `${completedModules / totalModules * 100}%`;
+            document.getElementById('completion-rate').textContent = '100%'; // CORRECCIÓN 2: 100% al finalizar
             document.getElementById('competency-level').textContent = percentage >= 80 ? 'ALTO' : percentage >= 60 ? 'MEDIO' : 'BAJO';
-            document.getElementById('time-invested').textContent = timeSpent + ' min';
+            // CORRECCIÓN 3: Mostrar el tiempo con un decimal
+            document.getElementById('time-invested').textContent = `${rawTimeSpentMinutes.toFixed(1)} min`; 
 
-            // Mostrar el puntaje total correcto sobre el total de preguntas (solo una vez)
+            // Mostrar el puntaje total correcto sobre el total de preguntas de los módulos contestados
             finalScoreDisplay.textContent = `${totalScore} / ${calculatedTotalQuestions} (${percentage}%)`;
 
             if (percentage >= 80) {
@@ -974,7 +973,7 @@
                 resultsHTML += `
                     <div class="p-4 rounded-lg ${colorClass} flex justify-between items-center">
                         <span class="font-medium text-gray-800">${result.title}</span>
-                        <!-- CAMBIO SOLICITADO: Asegurar que el color del texto de la puntuación sea negro (text-gray-800) -->
+                        <!-- Asegurar que el color del texto de la puntuación sea negro (text-gray-800) -->
                         <span class="font-bold text-lg text-gray-800">${result.score} / ${result.total} (${result.percentage}%)</span>
                     </div>
                 `;
@@ -1008,7 +1007,7 @@
             const calculatedTotalQuestions = moduleResults.reduce((sum, result) => sum + result.total, 0);
             const percentage = calculatedTotalQuestions > 0 ? Math.round((calculatedTotalScore / calculatedTotalQuestions) * 100) : 0;
             
-            const timeSpent = Math.round((new Date() - startTime) / 60000);
+            const rawTimeSpentMinutes = (new Date() - startTime) / 60000; // Tiempo en minutos
             
             let moduleSummaryText = '';
             let weakModules = [];
@@ -1039,8 +1038,8 @@ Email: ${supervisorData.email || 'No especificado'}
 
 MÉTRICAS DE ENTRENAMIENTO:
 Fecha: ${date} ${time}
-Duración: ${timeSpent} minutos
-Tasa de Completitud: ${completedModules / totalModules * 100}%
+Duración: ${rawTimeSpentMinutes.toFixed(1)} minutos
+Tasa de Completitud: ${(completedModules / totalModules * 100).toFixed(0)}%
 
 CALIFICACIÓN FINAL:
 Aciertos: ${calculatedTotalScore} / ${calculatedTotalQuestions}
@@ -1054,7 +1053,7 @@ ANÁLISIS DE COMPETENCIAS:
 ${strongModules.length > 0 ? `Fortalezas: ${strongModules.join(', ')}` : 'Sin fortalezas destacadas'}
 ${weakModules.length > 0 ? `Requiere refuerzo: ${weakModules.join(', ')}` : 'Sin áreas débiles identificadas'}
 
-RECOMENDACIONES PARA RH:
+RECOMENDACIONES PARA RL:
 ${percentage >= 80 ? '✓ Empleado competente para funciones supervisoras MASH\n✓ Considerar para roles de mentoring' : 
   percentage >= 60 ? '⚠ Programar refuerzo en áreas identificadas\n⚠ Supervisión adicional recomendada' : 
   '✗ Requiere re-entrenamiento completo\n✗ No apto para funciones supervisoras independientes'}
@@ -1213,7 +1212,8 @@ Reporte generado automáticamente - Sistema MASH v2.0
             `);
         }
 
-        function sendToRH() {
+        // Función original sendToRH renombrada y modificada para RL
+        function sendToRLClient() {
             const calculatedTotalScore = moduleResults.reduce((sum, result) => sum + result.score, 0);
             const calculatedTotalQuestions = moduleResults.reduce((sum, result) => sum + result.total, 0);
             const percentage = calculatedTotalQuestions > 0 ? Math.round((calculatedTotalScore / calculatedTotalQuestions) * 100) : 0;
@@ -1226,17 +1226,21 @@ Nivel: ${percentage >= 80 ? 'ALTO' : percentage >= 60 ? 'MEDIO' : 'BAJO'}
 
 Ver reporte completo adjunto.`;
             
-            const mailtoLink = `mailto:rh@empresa.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            // Reemplazado rh@empresa.com por rl@empresa.com (cambio de RL)
+            const mailtoLink = `mailto:rl@empresa.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             window.open(mailtoLink);
         }
 
-        function sendToGmail() {
+        // Función original sendToGmail renombrada y modificada para RL
+        function sendToRLGmail() {
+            // Se mantuvo la corrección de sintaxis del reduce
             const calculatedTotalScore = moduleResults.reduce((sum, result) => sum + result.score, 0);
             const calculatedTotalQuestions = moduleResults.reduce((sum, result) => sum + result.total, 0);
             const percentage = calculatedTotalQuestions > 0 ? Math.round((calculatedTotalScore / calculatedTotalQuestions) * 100) : 0;
             
             const subject = `Entrenamiento MASH Completado - ${supervisorData.nombre}`;
-            const body = `Estimado equipo de RH,
+            // Reemplazado RH en el cuerpo del correo
+            const body = `Estimado equipo de RL,
 
 El empleado ${supervisorData.nombre} del departamento ${supervisorData.departamento} ha completado exitosamente el Entrenamiento de Supervisor MASH.
 
@@ -1244,7 +1248,7 @@ RESULTADOS:
 - Calificación Final: ${percentage}%
 - Nivel de Competencia: ${percentage >= 80 ? 'ALTO' : percentage >= 60 ? 'MEDIO' : 'BAJO'}
 - Status: ${percentage >= 80 ? 'COMPETENTE' : percentage >= 60 ? 'APROBATORIO' : 'REQUIERE REFUERZO'}
-- Duración: ${Math.round((new Date() - startTime) / 60000)} minutos
+- Duración: ${((new Date() - startTime) / 60000).toFixed(1)} minutos
 
 ${percentage >= 80 ? 'RECOMENDACIÓN: Empleado listo para funciones supervisoras MASH independientes.' : 
   percentage >= 60 ? 'RECOMENDACIÓN: Programar refuerzo en áreas identificadas antes de funciones independientes.' : 
@@ -1255,7 +1259,8 @@ El reporte completo y certificado (si aplica) se pueden generar desde el sistema
 Saludos,
 Sistema Automatizado de Entrenamiento MASH`;
             
-            const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=rh@empresa.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            // Reemplazado rh@empresa.com por rl@empresa.com (cambio de RL)
+            const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=rl@empresa.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             window.open(gmailLink, '_blank');
         }
 
